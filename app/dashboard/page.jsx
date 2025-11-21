@@ -69,6 +69,40 @@ export default function Dashboard() {
     }
   };
 
+// -----------------------------
+// タスク完了切り替え
+// -----------------------------
+const toggleTask = async (task) => {
+  console.log("toggleTask input:", task);
+
+  const { error } = await supabase
+    .from("tasks")
+    .update({ is_done: !task.is_done })
+    .eq("id", task.id);
+
+  if (error) {
+    console.error(error);
+  } else {
+    fetchTasks(user.id);
+  }
+};
+
+// -----------------------------
+// タスク削除
+// -----------------------------
+const deleteTask = async (taskId) => {
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", taskId);
+
+  if (error) {
+    console.error(error);
+  } else {
+    fetchTasks(user.id);
+  }
+};
+
   // -----------------------------
   // ログアウト
   // -----------------------------
@@ -104,11 +138,26 @@ export default function Dashboard() {
 
       <ul>
         {tasks.map((task) => (
-          <li key={task.id}>
-            {task.title} {task.is_done ? "✔" : ""}
+          <li key={task.id} style={{ marginBottom: 10 }}>
+            <input
+              type="checkbox"
+              checked={task.is_done}
+              onChange={() => toggleTask(task)}
+            />
+            <span style={{ marginLeft: 8 }}>
+              {task.title} {task.is_done ? "✔" : ""}
+            </span>
+
+            <button
+              onClick={() => deleteTask(task.id)}
+              style={{ marginLeft: 10, color: "red" }}
+            >
+              削除
+            </button>
           </li>
         ))}
       </ul>
+
     </div>
   );
 }
