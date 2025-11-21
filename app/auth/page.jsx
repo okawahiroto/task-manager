@@ -18,49 +18,65 @@ export default function AuthPage() {
         email,
         password,
       });
-      if (error) alert(error.message);
-      else router.push("/dashboard");
+      if (error) {
+        alert(error.message);
+      } else {
+        router.push("/dashboard");
+      }
     } else {
       const { error } = await supabase.auth.signUp({
         email,
         password,
       });
-      if (error) alert(error.message);
-      else alert("サインアップ成功！メールを確認してください。");
+      if (error) {
+        alert(error.message);
+      } else {
+        alert("サインアップ成功！メールを確認してください。");
+      }
     }
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>{isLogin ? "ログイン" : "サインアップ"}</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="メールアドレス"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        /><br />
-
-        <input
-          type="password"
-          placeholder="パスワード"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        /><br />
-
-        <button type="submit">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+      <div className="bg-white shadow p-8 rounded w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-6 text-center">
           {isLogin ? "ログイン" : "サインアップ"}
-        </button>
-      </form>
+        </h1>
 
-      <p
-        style={{ cursor: "pointer", color: "blue", marginTop: 20 }}
-        onClick={() => setIsLogin(!isLogin)}
-      >
-        {isLogin ? "アカウントを作る →" : "すでにアカウントがある →"}
-      </p>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <input
+            type="email"
+            placeholder="メールアドレス"
+            className="w-full p-2 border rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="パスワード"
+            className="w-full p-2 border rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+          >
+            {isLogin ? "ログイン" : "サインアップ"}
+          </button>
+        </form>
+
+        <p
+          className="text-blue-600 text-center mt-4 cursor-pointer"
+          onClick={() => setIsLogin(!isLogin)}
+        >
+          {isLogin ? "アカウントを作る →" : "すでにアカウントがある →"}
+        </p>
+      </div>
     </div>
   );
 }

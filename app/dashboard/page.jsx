@@ -8,11 +8,11 @@ export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState(null);
 
-  const [tasks, setTasks] = useState([]); // ← タスク一覧
-  const [newTask, setNewTask] = useState(""); // ← 新規タスク
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
 
   // -----------------------------
-  // ユーザー確認
+  // ユーザー確認 & タスク読み込み
   // -----------------------------
   useEffect(() => {
     const getUser = async () => {
@@ -24,7 +24,7 @@ export default function Dashboard() {
         router.push("/auth");
       } else {
         setUser(user);
-        fetchTasks(user.id); // ← ログインできたらタスクを読み込む
+        fetchTasks(user.id);
       }
     };
 
@@ -41,9 +41,7 @@ export default function Dashboard() {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error(error);
-    } else {
+    if (!error) {
       setTasks(data);
     }
   };
@@ -61,47 +59,36 @@ export default function Dashboard() {
       },
     ]);
 
-    if (error) {
-      alert(error.message);
-    } else {
+    if (!error) {
       setNewTask("");
-      fetchTasks(user.id); // ← 再読み込み
+      fetchTasks(user.id);
     }
   };
 
-// -----------------------------
-// タスク完了切り替え
-// -----------------------------
-const toggleTask = async (task) => {
-  console.log("toggleTask input:", task);
+  // -----------------------------
+  // タスク完了切り替え
+  // -----------------------------
+  const toggleTask = async (task) => {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ is_done: !task.is_done })
+      .eq("id", task.id);
 
-  const { error } = await supabase
-    .from("tasks")
-    .update({ is_done: !task.is_done })
-    .eq("id", task.id);
+    if (!error) {
+      fetchTasks(user.id);
+    }
+  };
 
-  if (error) {
-    console.error(error);
-  } else {
-    fetchTasks(user.id);
-  }
-};
+  // -----------------------------
+  // タスク削除
+  // -----------------------------
+  const deleteTask = async (taskId) => {
+    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
 
-// -----------------------------
-// タスク削除
-// -----------------------------
-const deleteTask = async (taskId) => {
-  const { error } = await supabase
-    .from("tasks")
-    .delete()
-    .eq("id", taskId);
-
-  if (error) {
-    console.error(error);
-  } else {
-    fetchTasks(user.id);
-  }
-};
+    if (!error) {
+      fetchTasks(user.id);
+    }
+  };
 
   // -----------------------------
   // ログアウト
@@ -111,53 +98,79 @@ const deleteTask = async (taskId) => {
     router.push("/auth");
   };
 
-  if (!user) return <div style={{ padding: 40 }}>読み込み中...</div>;
+  if (!user)
+    return <div className="p-10 text-center text-gray-500">読み込み中...</div>;
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Dashboard</h1>
-      <p>ログイン中: {user.email}</p>
-      <button onClick={handleLogout}>ログアウト</button>
+    <div className="min-h-screen bg-gray-100 px-4 py-10">
+      <div className="max-w-xl mx-auto bg-white shadow p-8 rounded">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <button
+            onClick={handleLogout}
+            className="text-red-500 hover:text-red-700"
+          >
+            ログアウト
+          </button>
+        </div>
 
-      <hr style={{ margin: "20px 0" }} />
+        <p className="text-gray-600 mb-6">ログイン中: {user.email}</p>
 
-      <h2>タスク追加</h2>
-      <input
-        type="text"
-        placeholder="タスク名"
-        value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
-      />
-      <button onClick={addTask} style={{ marginLeft: 10 }}>
-        追加
-      </button>
+        {/* タスク追加 */}
+        <div className="flex gap-2 mb-6">
+          <input
+            type="text"
+            placeholder="タスク名を入力"
+            className="flex-1 border p-2 rounded"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+          />
+          <button
+            onClick={addTask}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            追加
+          </button>
+        </div>
 
-      <h2 style={{ marginTop: 30 }}>タスク一覧</h2>
+        {/* タスク一覧 */}
+        <h2 className="text-xl font-semibold mb-4">タスク一覧</h2>
 
-      {tasks.length === 0 && <p>タスクはありません</p>}
+        {tasks.length === 0 && (
+          <p className="text-gray-500">タスクはありません</p>
+        )}
 
-      <ul>
-        {tasks.map((task) => (
-          <li key={task.id} style={{ marginBottom: 10 }}>
-            <input
-              type="checkbox"
-              checked={task.is_done}
-              onChange={() => toggleTask(task)}
-            />
-            <span style={{ marginLeft: 8 }}>
-              {task.title} {task.is_done ? "✔" : ""}
-            </span>
-
-            <button
-              onClick={() => deleteTask(task.id)}
-              style={{ marginLeft: 10, color: "red" }}
+        <ul className="space-y-3">
+          {tasks.map((task) => (
+            <li
+              key={task.id}
+              className="p-3 bg-gray-50 border rounded flex justify-between items-center"
             >
-              削除
-            </button>
-          </li>
-        ))}
-      </ul>
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={task.is_done}
+                  onChange={() => toggleTask(task)}
+                />
+                <span
+                  className={
+                    task.is_done ? "line-through text-gray-500" : "text-gray-800"
+                  }
+                >
+                  {task.title}
+                </span>
+              </div>
 
+              <button
+                onClick={() => deleteTask(task.id)}
+                className="text-red-500 hover:text-red-700 text-sm"
+              >
+                削除
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
