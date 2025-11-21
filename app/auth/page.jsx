@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
 
 export default function AuthPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
@@ -17,7 +19,7 @@ export default function AuthPage() {
         password,
       });
       if (error) alert(error.message);
-      else alert("ログイン成功！");
+      else router.push("/dashboard");
     } else {
       const { error } = await supabase.auth.signUp({
         email,
