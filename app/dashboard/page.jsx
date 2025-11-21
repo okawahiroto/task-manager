@@ -32,6 +32,38 @@ export default function Dashboard() {
   }, [router]);
 
   // -----------------------------
+  // Realtime（リアルタイム購読）
+  // -----------------------------
+  useEffect(() => {
+    if (!user) return;
+
+    // "tasks" テーブルの変更をリッスン
+    const channel = supabase
+      .channel("tasks-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "tasks",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log("Realtime event:", payload);
+
+          // DBに変更があったら最新データを再取得
+          fetchTasks(user.id);
+        }
+      )
+      .subscribe();
+
+    // クリーンアップ（ページ離脱時に購読解除）
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  // -----------------------------
   // タスク取得
   // -----------------------------
   const fetchTasks = async (userId) => {
