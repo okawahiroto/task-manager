@@ -137,7 +137,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-100 px-4 py-10">
       <div className="max-w-xl mx-auto bg-white shadow p-8 rounded">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <button
             onClick={handleLogout}
             className="text-red-500 hover:text-red-700"
@@ -153,7 +153,7 @@ export default function Dashboard() {
           <input
             type="text"
             placeholder="タスク名を入力"
-            className="flex-1 border p-2 rounded"
+            className="flex-1 border p-2 rounded text-gray-900 placeholder:text-gray-600"
             value={newTask}
             onChange={(e) => setNewTask(e.target.value)}
           />

@@ -39,7 +39,7 @@ export default function AuthPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="bg-white shadow p-8 rounded w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
           {isLogin ? "ログイン" : "サインアップ"}
         </h1>
 
@@ -47,7 +47,7 @@ export default function AuthPage() {
           <input
             type="email"
             placeholder="メールアドレス"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded text-gray-900 placeholder:text-gray-600"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -56,7 +56,7 @@ export default function AuthPage() {
           <input
             type="password"
             placeholder="パスワード"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded text-gray-900 placeholder:text-gray-600"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
